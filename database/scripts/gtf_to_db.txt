@@ -1,0 +1,102 @@
+def gtf_to_files(gtf):
+	'''
+	Input: a ensembl gtf file
+	Output: four tab separated files each containing the genes, transcripts, exons and cds from the input gtf file
+	Gene file: chromosome,start,end,strand,gene_id,gene_name
+	Transcript file: start,end,gene_id,transcript_id
+	Exon file: chromosome,start,end,strand,transcript_id,exon_number
+	CDS file: start,end,transcript_id,exon_number,protein_id
+	'''
+	import os
+	basename=os.path.splitext(gtf)[0]
+	with open(gtf) as f_gtf, \
+	     open(basename+'.gene.tsv','w') as f_gene, \
+	     open(basename+'.transcript.tsv','w') as f_transcript, \
+	     open(basename+'.exon.tsv','w') as f_exon, \
+	     open(basename+'.cds.tsv','w') as f_cds: #use w tag to overwrite exisiting files
+		#initiate header for the files
+		f_gene.write('\t'.join(['chromosome','start','end','strand','gene_id','gene_name'])+'\n')
+		f_transcript.write('\t'.join(['start','end','gene_id','transcript_id'])+'\n')
+		f_exon.write('\t'.join(['chromosome','start','end','strand','transcript_id','exon_number'])+'\n')
+		f_cds.write('\t'.join(['start','end','transcript_id','exon_number','protein_id'])+'\n')
+
+		#parsing the gtf file
+		for l in f_gtf:
+			if not l.startswith('#'):
+				s=l.split('\t')
+				chrm=s[0]
+				level=s[2]
+				start=s[3]
+				end=s[4]
+				strand=s[6]
+				d_info={}
+				for item in s[8].strip().split(';'):
+					if item:
+						k,v,=item.strip().split(' ',1) #remove flanking space then split by first space
+						d_info[k]=v.strip('"')
+				#for a gene line
+				if level=='gene':
+					if "gene_name" not in d_info:
+						d_info["gene_name"]=''
+					f_gene.write('\t'.join([chrm,start,end,strand,d_info["gene_id"],d_info["gene_name"]])+'\n')
+				if level=='transcript':
+					f_transcript.write('\t'.join([start,end,d_info["gene_id"],d_info["transcript_id"]])+'\n')
+				if level=='exon':
+					f_exon.write('\t'.join([chrm,start,end,strand,d_info["transcript_id"],d_info["exon_number"]])+'\n')
+				if level=='CDS':
+					f_cds.write('\t'.join([start,end,d_info["transcript_id"],d_info["exon_number"],d_info["protein_id"]])+'\n')
+
+def merge_cds_exon(rootname):
+	'''
+	Given a pair of exon and cds file from gtf_to_files output,merge the two files so that each exon is associated to its cds if exists.
+	Input:
+		rootname: name of gtf without extension. Assuming existance of exon and cds files from gtf_to_files
+		exon: exon file with 6 columns: chromosome, start, end, strand, transcript id, exon number
+		cds: cds file with 5 columns: start, end, transcript id, exon number, protein ID
+	Output:
+		exon_cds: chromosome, exon_start, exon_end, strand, transcript id, exon number, cds_start, cds_end, protein id
+	'''
+	d={} #initiate a dictionary to hold cds for search
+	with open(rootname+'.cds.tsv') as f_cds:
+		next(f_cds) #header
+		for l in f_cds:
+			s=l.split()
+			d[s[2]+'_'+s[3]]=s[:2]+[s[-1]] #d[${txid}_${exon_number}]=[start,end,protein_id]
+	with open(rootname+'.exon.tsv') as f_exon, open(rootname+'.exon_cds.tsv','a')  as fo:
+		fo.write('\t'.join(['chromosome','exon_start','exon_end','strand','transcript_id','exon_number','cds_start','cds_end','protein_id','cds_length'])+'\n') #add new header
+		next(f_exon) #skip the original header
+		for l in f_exon:
+			s=l.split()
+			try:
+				cds_pos=d[s[4]+'_'+s[5]]
+				cds_pos.append(str(int(cds_pos[1])-int(cds_pos[0])+1)) #add cds length
+			except:
+				cds_pos=["","","",'0']
+			finally:
+				fo.write('\t'.join(s+cds_pos)+'\n')
+
+				
+def exon_cds_position(rootname):
+	'''
+	Given an exon_cds file from output of gtf_to_files and merge_cds_exon, add position within cds
+	Input: exon_cds file from merge_cds_exon
+	Output: exon_cds_pos file with two additional columns of start and end of cds
+	'''
+	pid=None #initiate transcript id
+	with open(rootname+'.exon_cds.tsv') as fi,  open(rootname+'.exon_cds_pos.tsv','a') as fo:
+		fo.write(next(fi)[:-1]+'\tstart_in_cds\tend_in_cds\n') #header
+		for l in fi:
+			s=l.strip().split('\t') #thanks to the final cds_length column non coding exons have 0 at the last column
+			if not s[8]: #non coding exon
+				fo.write('\t'.join(s+['0','0'])+'\n') 
+			elif s[8]!=pid: #new cds sequence
+				pid=s[8]
+				start=1
+				end=int(s[9]) #using 1-based coords
+				fo.write('\t'.join(s+[str(start),str(end)])+'\n')
+			else: #existing cds
+				start=end+1
+				end=end+int(s[9])
+				fo.write('\t'.join(s+[str(start),str(end)])+'\n')
+				
+				

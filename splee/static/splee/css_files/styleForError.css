@@ -1,0 +1,16 @@
+h1{
+
+ color:#000000  ;
+ background-color: #ffffff;
+ font-size: 30px;
+}
+
+
+body {
+    background-image: url("../pictures/background.jpg");
+    background-color: #ffffff;
+    background-attachment: fixed;
+}
+
+
+

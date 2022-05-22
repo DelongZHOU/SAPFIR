@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+{% load static %}
+
+<meta charset= "utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gene Annotation Qurey</title>
+
+<link rel="stylesheet" type="text/css" href="{% static 'splee/css_files/styleForSingleForm.css' %}" />
+<link rel="shortcut icon" href="{%  static 'splee/pictures/s.ico' %}">
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script type="text/javascript"> 
+function showHide(){
+   if (document.getElementById('gene_id').value =="") {  
+     alert("Please enter a gene symbol or Ensembl ID");
+     return false;
+   } else {
+     $('#gif').css('visibility', 'visible');
+   }
+}
+</script>
+<style>
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+</style>
+<style>
+.content {
+  max-width: 80%;
+  margin: auto;
+}
+</style>
+
+</head>
+
+<body style="margin-left:10%;margin-right:10%">
+<div class=content>
+<div id="logo">
+        <a href='/home'>
+	  <img src="{% static 'splee/pictures/sapfir-logo.svg' %}" height="150px" width="325px" alt="SAPFIR"/>
+        </a>
+</div>
+<br>
+
+
+<!-- beginning of the is  the major Form -->
+<div class="form">
+<br>
+<br>
+<!-- action will redirect to searchForm/{action} in url.py which in turn calls function in setting.py -->
+  <form name="myForm" class = "loading_form" id="major_form" action= "search" method="GET" onsubmit="return validateForm()" >
+  {% csrf_token %}
+    <fieldset >
+      <legend> {{'Single Gene Search'}} </legend>  
+      <br>
+      <br>
+      <br>
+      <p>The goal of this function is to visualize the position of functional features within a gene, and indicate whether these features are presented in all transcripts (constitutive) or only in some transcripts (alternative).</p>
+      <p>To suit the needs of different studies, whether a feature is alternative will be investigated accoding to three independent standards in the selection of transcripts :
+        <dl>
+          <dt>(1) All coding transcripts;
+          <dt>(2) Transcripts whose CDS are longer than a certain ratio of the longest CDS, the ratio can be modified in the next section;
+		<dd>Transcripts with short CDS have few predicted features, thus making features predicted in other transcripts alternative. By default the threshold is set to 0.25. This value will not interfere with the first or third standards.
+          <dt>(3) Transcripts whose CDS overlaps with the feature.
+		<dd>This standard is more useful for alternative splicing where an alternative region flancked by constititive regions.
+       </dl>
+      </p>
+      <p>Please consult the <a href='/help'> help page </a> for a detailed explaination.</p>
+      <br>
+      <!-- the Search input text -->
+
+      <p>Please enter a gene : </p>
+      <input type="text" pattern="[A-Za-z0-9\-@_]+" id= 'gene_id' name="gene_id" placeholder="ex: RBFOX2" required="required" autocomplete="on">
+      <p> Accept HGNC / MGI symbols (case insensitive) or Ensembl Gene ID (e.g. ENSG00000100320 in human or ENSMUSG00000033565 in mouse).  </p> 
+      <br>
+      {{ species_form.as_p }}
+      <br>
+      {{ tool_form.as_p }}
+      <br>
+      <p>Please note that each tool is designed to predict a different set of features of the protein sequence. A detailed description of the tools can be found at <a href='https://www.ebi.ac.uk/interpro/about/consortium/'>InterPro website</a>. Choosing multiple tools may produce redundancy in the result if they are designed to predict similar features and also make the plot cumbersome.</p>
+      <br>
+      <p>(Optional) Change the CDS Length Ratio for the transcript selection: </p>
+      <p>Higher threshold retains fewer transcripts. Use the default value (0.25) to start exploring.</p>
+      <p>Please enter a decimal number between 0 and 1 (e.g. 0.25). Percentage is not accepted. </p>
+      <input type=number id='ratio' name='ratio' step=any min="0" max="1" value="0.25" >
+      <br>
+<!-- Add a loading gif when click on submit -->
+
+<img src="/static/splee/pictures/loading.gif" id="gif" style=" margin-left: auto; width: 100px; visibility: hidden;"><br>
+
+      <input type="submit" onClick="return showHide()" id="submit" value="Submit" style="height:50px; width:100px"/>
+      <p>It usually takes about 20~30 seconds to load the result page.</p>
+    </fieldset>
+  </form> 
+</div>
+<!-- ending of the the major Form -->
+</div>
+</body>
+</html>

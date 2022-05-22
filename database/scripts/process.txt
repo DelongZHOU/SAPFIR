@@ -1,0 +1,203 @@
+def process_interpro(interpro,process):
+	'''
+	Modify an interproscan prediction file into a bed like file so that bedtools can be used to map domain coordinates in peptide and genomic coordinates corresponding to the domain.
+	Input: a merged interproscan prediction file
+	Output: a bed like file to where:
+		1st column: Prot_acc without version number
+		2nd column: cds coord start
+		3rd column: cds coord end
+		4th column: Analysis@Sign_acc@InterPro_acc@InterPro_Description
+	'''
+	import pandas as pd
+	#columns of interproscan output
+	#this avoids the problem caused by diffrent row length
+	#due to lines without 'InterPro_acc','InterPro_des'
+	header=['Prot_acc','Seq_md5','Seq_len',
+		'Analysis','Sign_acc','Sign_des',
+		'Start','Stop',
+		'Score','Status','Date',
+		'InterPro_acc','InterPro_des'
+		#add GO and pathway columns if used
+		]
+	df=pd.read_csv(interpro,header=None,names=header,sep='\t')
+	df.fillna('')
+	df['Prot_acc']=df['Prot_acc'].map(lambda x: x.split('.')[0])
+	df['Start']=df['Start'].map(lambda x: int(x)*3-2)
+	df['Stop']=df['Stop'].map(lambda x: int(x)*3)
+	df['description']=df.apply(lambda x: '{}@{}@{}@{}'.format(x['Analysis'],x['Sign_acc'],x['InterPro_acc'],x['InterPro_des']), axis=1)
+	data=df[['Prot_acc','Start','Stop','description']]
+	data.to_csv(process,header=False,index=False,sep='\t')
+
+def extract_IPS_des(folder,out):
+	'''
+	Save InterPro_acc and InterPro_des into a file to patch InterPro_des info in the domain file.
+	Ideally this should be avoided. Instead include the description directly into the domain file.
+	'''
+	import os
+	import pandas as pd
+	des_final=None
+	header=['Prot_acc','Seq_md5','Seq_len',
+		'Analysis','Sign_acc','Sign_des',
+		'Start','Stop',
+		'Score','Status','Date',
+		'InterPro_acc','InterPro_des'
+		#add GO and pathway columns if used
+		]
+	for root, sub, files in os.walk(folder):
+		for file in files:
+			df=pd.read_csv(os.path.join(root,file),
+				       header=None,
+				       names=header,
+				       sep='\t')
+			des=df[['InterPro_acc','InterPro_des']].drop_duplicates(ignore_index=True)
+			try:
+				des_final=pd.concat([des_final,des])
+				des_final.drop_duplicates(ignore_index=True)
+			except:
+				des_final=des
+	des_final.dropna()
+	des_final.to_csv(out,header=False,index=False,sep='\t')	
+	
+def process_exon(exon,process):
+	'''
+	Modify an exon table with cds position into a bed like file so that bedtools can be used to map domain coordinates in peptide and genomic coordinates corresponding to the domain.
+	Input: an exon_cds_position file from above script
+	Output: a bed like file to where:
+		1st column: Protein_id
+		2nd column: start_in_cds
+		3rd column: end_in_cds
+		additional columns: chromosome,cds_start,cds_end,strand
+	'''
+	import pandas as pd
+	df=pd.read_csv(exon,header=0,sep='\t',dtype='str')
+	df=df.dropna(subset=['protein_id'])
+	data=df[['protein_id','start_in_cds','end_in_cds','chromosome','cds_start','cds_end','strand']]
+	data.to_csv(process,header=False,index=False,sep='\t')
+	
+def domain_exon(in_ex,domain):
+	'''
+	From in_ex which is the domain.exon file produced with mapBed, create two files:
+	.domain : list of domains, each with start and end corresponding genomic position
+		protein_id@tool@tool_assession@interpro_assession@interpro_description@number start end
+	'''
+	with open(in_ex) as fi, open(domain,'w') as fd:
+		n=0
+		for l in fi:
+			s=l.strip().split('\t')
+			if s[4]=='.'or s[5]=='.' or s[7]=='.' or s[8]=='.':
+				pass # entries missing information are discarded
+			else:
+				n+=1
+				if n % 10000==0:
+					print(n)
+				prot_id=s[0]
+				domain_start=int(s[1])
+				domain_end=int(s[2])
+				prediction=s[3]
+				chromosome=s[6]
+				cds_starts=list(map(int,s[4].split(',')))
+				cds_ends=list(map(int,s[5].split(',')))
+				genome_starts=list(map(int,s[7].split(',')))
+				genome_ends=list(map(int,s[8].split(',')))
+
+				if chromosome.isdigit() or chromosome=='X' or chromosome=='Y':
+					chromosome='chr'+chromosome
+				elif chromosome=='MT':
+					chromosome='chrM'
+
+
+				strand=s[9]
+				prediction_id=prot_id+'@'+prediction+'@'+str(n)
+				if strand=='+':
+					genome_starts[0]=max(genome_starts[0],
+								genome_starts[0]+domain_start-cds_starts[0])
+					genome_ends[-1]=min(genome_ends[-1],
+								genome_ends[-1]+domain_end-cds_ends[-1])
+					fd.write('\t'.join([prediction_id,
+							str(genome_starts[0]),
+							str(genome_ends[-1])
+							])+'\n')
+				else:
+					genome_ends[0]=min(genome_ends[0],
+								genome_ends[0]-domain_start+cds_starts[0])
+					genome_starts[-1]=max(genome_starts[-1],
+								genome_starts[-1]-domain_end+cds_ends[-1])
+					fd.write('\t'.join([prediction_id,
+							str(genome_starts[-1]),
+							str(genome_ends[0])
+							])+'\n')
+
+								
+
+def tables_to_db(gene,transcript,cds,exon,domain,appris,db,domain_tsv):
+	'''
+	Use gene, transcript, cds, exon tables; domain (genomic, without conservation) files from above, build database db and save domain table in domain_tsv to put into utility under django project
+	As requested by reviewer, APPRIS database is used to indicate major isoforms. Files downloaded from APPRIS contains entries of transcripts which are marked as PRINCIPAL or ALTERNATIVE, as candidates for major isoforms; transcripts not in the files are considered as MINOR isoform.
+	Note: APPRIS file format is not consistant at the moment of writing. Human file contains header with MANE major isoform annotation, but mouse file has no header and no MANE annotation because MANE is only for human. Manual addition of header to the mouse file is required.
+	'''
+	import sqlite3 as sql
+	import pandas as pd
+	
+	#prepare for CDS calculation
+	cds_length={}
+	cds_coords={}
+	with open(cds) as fr:
+		next(fr)
+		for l in fr:
+			s=l.split()
+			if not s[2] in cds_length:
+				cds_length[s[2]]=0
+			cds_length[s[2]]+=int(s[1])-int(s[0])+1
+			if not s[2] in cds_coords:
+				cds_coords[s[2]]=[int(s[0]),int(s[1])]
+			else:
+				cds_coords[s[2]][0]=min(cds_coords[s[2]][0],int(s[0]))
+				cds_coords[s[2]][1]=max(cds_coords[s[2]][1],int(s[1]))
+				
+	#prepare for APPRIS annotation
+	appris=pd.read_csv(appris,sep='\t',header=0)
+	appris_dict=dict(zip(appris['Transcript ID'],appris['APPRIS Annotation']))
+	
+	#read gene table
+	gene=pd.read_csv(gene,sep='\t',header=0)
+	
+	#read and prepare transcript table
+	transcript=pd.read_csv(transcript,sep='\t',header=0)
+	
+	#add cds information. if non coding, i.e. does not have corresponding CDS, then cds length and its start and end are set to 0
+	transcript['cds_length']=transcript['transcript_id'].apply(lambda x: cds_length[x] if x in cds_length else 0)
+	transcript['cds_start']=transcript['transcript_id'].apply(lambda x: cds_coords[x][0] if x in cds_coords else 0)
+	transcript['cds_end']=transcript['transcript_id'].apply(lambda x: cds_coords[x][1] if x in cds_coords else 0)
+	
+	#add APPRIS annotation
+	transcript['APPRIS']=transcript['transcript_id'].apply(lambda x: appris_dict[x] if x in appris_dict else 'MINOR')
+	transcript_gene=transcript[['transcript_id','gene_id']].drop_duplicates()
+	transcript_gene=transcript_gene.set_index('transcript_id').to_dict()['gene_id']
+	
+	#read cds table and prepare protein-cds-transcript correspondance
+	cds=pd.read_csv(cds,sep='\t',header=0)
+	prot_transcript=cds[['transcript_id','protein_id']].drop_duplicates()
+	prot_transcript=cds.set_index('protein_id').to_dict()['transcript_id']
+	
+	#read exon table
+	exon=pd.read_csv(exon,sep='\t',header=0,na_values='0')
+	
+	#read domain table and add corresponding information
+	domain=pd.read_csv(domain,sep='\t',header=None,names=['id','start','end'],na_values='nan')
+	domain[['protein_id','tool','signature','InterPro_acc','InterPro_des','dump']]=domain['id'].str.split("@",5,expand=True)
+	domain.drop(columns=['id','dump'],inplace=True)
+	domain['transcript_id']=domain['protein_id'].apply(lambda x: prot_transcript[x])
+	domain['gene_id']=domain['transcript_id'].apply(lambda x: transcript_gene[x])
+	
+	#save tables to db
+	with sql.connect(db) as connection: # quto-closes
+		with connection: # auto-commit
+			gene.to_sql(name='gene',con=connection, index=False) #do not save index
+			transcript.to_sql(name='transcript',con=connection, index=False)
+			exon.to_sql(name='exon',con=connection, index=False)
+			domain.to_sql(name='domain',con=connection, index=False)
+	#save domain table as tsv
+	domain_ref=domain[['gene_id','start','end','tool','signature','InterPro_acc','InterPro_des']].drop_duplicates()
+	domain_ref.sort_values(by=['gene_id','start','end'],inplace=True)
+	domain_ref.to_csv(domain_tsv,sep='\t',index=False,header=None)
+

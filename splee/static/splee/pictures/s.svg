@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="图层_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 617.48 649" style="enable-background:new 0 0 617.48 649;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:url(#SVGID_1_);}
+	.st1{fill:url(#SVGID_2_);}
+	.st2{fill:url(#SVGID_3_);}
+</style>
+<g>
+	<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="106.6406" y1="399.695" x2="399.4562" y2="106.8795">
+		<stop  offset="5.434346e-07" style="stop-color:#32AEDF"/>
+		<stop  offset="1" style="stop-color:#56BDE2"/>
+	</linearGradient>
+	<path class="st0" d="M202.81,178.26h89v16.25h29.67v-16.25h99.22v16.25h64.22c-40.23-50.67-102.35-83.17-172.07-83.17
+		S181,143.84,140.77,194.51h62.03V178.26z"/>
+	<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="160.206" y1="485.0897" x2="467.2657" y2="178.03">
+		<stop  offset="5.434346e-07" style="stop-color:#32AEDF"/>
+		<stop  offset="1" style="stop-color:#56BDE2"/>
+	</linearGradient>
+	<path class="st1" d="M406.1,348.64v17.02h-84.63v-17.02h-29.67v17.02h-89v-48.64h89v17.02h29.67v-17.02h84.63v17.02H532.4
+		c0.01-1.04,0.04-2.07,0.04-3.11c0-45.07-13.59-86.97-36.88-121.83H420.7v17.8h-99.22v-17.8h-29.67v17.8h-89v-17.8h-72.67
+		c-11.3,16.91-20.31,35.47-26.59,55.24h52.57v-17.02h69.55v48.64h-69.55v-17.02H99.46c-4.05,16.67-6.21,34.08-6.21,52
+		c0,49.7,16.52,95.53,44.35,132.33h65.2v-17.02h89v17.02h29.67v-17.02h99.22v17.02h67.39c12.48-16.5,22.67-34.81,30.13-54.47h-44.99
+		v17.02h-69.55v-48.64h69.55v17.02h49.95c4.39-14.61,7.3-29.85,8.56-45.57H406.1z"/>
+	<linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="231.8887" y1="559.0277" x2="523.6542" y2="267.2622">
+		<stop  offset="5.434346e-07" style="stop-color:#32AEDF"/>
+		<stop  offset="1" style="stop-color:#56BDE2"/>
+	</linearGradient>
+	<path class="st2" d="M420.7,494.88h-99.22v-17.02h-29.67v17.02h-89v-17.02h-53.15c40.19,44.61,98.41,72.67,163.19,72.67
+		s123-28.05,163.19-72.67H420.7V494.88z"/>
+</g>
+</svg>

@@ -1,0 +1,111 @@
+  <!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+{% load static %}
+
+<meta charset= "utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enrichment query</title>
+
+<link rel="stylesheet" type="text/css" href="{% static 'splee/css_files/styleForMapForm.css' %}" />
+<link rel="shortcut icon" href="{%  static 'splee/pictures/s.ico' %}"> 
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<style>
+.content {
+  max-width: 80%;
+  margin: auto;
+}
+</style>
+</head>
+
+<body style="margin-left:10%;margin-right:10%">
+<div class=content>
+
+<div id="logo">
+        <a href='/home'>
+	  <img src="{% static 'splee/pictures/sapfir-logo.svg' %}" height="150px" width="325px" alt="SAPFIR"/>
+        </a>
+</div><br>
+
+
+
+<!-- beginning of the is  the major Form -->
+
+
+<div class="form">
+<br>
+<br>
+ <form name="myForm" class = "loading_form" id="major_form" action= "search/" method="POST" enctype="multipart/form-data"> {% csrf_token %}
+<!-- action will redirect to mapForm/{action} in url.py which in turn calls function in setting.py -->
+
+  <fieldset >
+
+
+    <legend> {{'Enrichment Test'}} </legend>  
+
+      <br>
+      <br>
+      <br>
+      <h3> 
+        <p>The goal of this function is to help understand how changes in splicing profile affect the protein function in the cell. Two lists of genomic regions are expected: one list of regions of interest, and another serves as the control. A typical input can be a list of alternatively spliced exons or junctions identified by an RNA-seq experiments as the "target", and a list of expressed but not alternatively spliced exons or junctions in the same experiment as the "background", although generally any regions meaningful for the user can be used. The tool compares the frequency of predicted protein features overlapping with regions in each list and performs an enrichment analysis.</p>
+        <p>Please consult the <a href='/help'> help page </a> for more information.</p> 
+      <h3>
+      <br>
+      <br>
+      <br>
+
+
+<!-- Target file -->
+<h2> <a href="help/#findSection" style="text-decoration: none" "> {{_('Target File')}}</a></h2>
+<h3> Expect human GRCh38 or mouse GRCm39 genomic regions in Bed6 format with Ensembl gene ID in the 4th column. Score column and additional columns are ignored. <h3>
+    <input type="file" name="targetFile" required="required">
+<h3> <br> An example target file can be downloaded here: <a href="{% static "splee/example/human_target.bed" %}" download>human</a> or <a href="{% static "splee/example/mouse_target.bed" %}" download> mouse</a>. <br>  </h3>
+ <br>
+ 
+<!-- Background file -->
+<h2> <a href="help/#findSection" style="text-decoration: none" "> {{_('Background File')}}</a></h2>
+<h3> Expect human GRCh38 or mouse GRCm39 genomic regions in Bed6 format with Ensembl gene ID in the 4th column. Score column and additional columns are ignored. <h3>
+    <input type="file" name="backgroundFile" required="required">
+<h3> <br> An example background file can be downloaded here: <a href="{% static "splee/example/human_background.bed" %}" download>human</a> or <a href="{% static "splee/example/mouse_background.bed" %}" download>mouse</a>. <br>  </h3>   
+
+<!-- optional user email address -->
+<!-- <br> -->
+<!-- <label for="email"> (Optional) To obtain a notification when the result page is ready, please enter your email address here: </label> -->
+<!-- <input type="email" id= 'email' name="email" > -->
+<br>
+
+{{ species_form.as_p }}
+<br>
+{{ tool_form.as_p }}
+<br>
+<p>Please note that each tool is designed to predict a different set of features of the protein sequence. A detailed description of the tools can be found at <a href='https://www.ebi.ac.uk/interpro/about/consortium/'>InterPro website</a>. Choosing multiple tools may produce redundancy in the result if they are designed to predict similar features.</p>
+
+<!-- Add a loading gif when click on submit -->
+<script type="text/javascript"> 
+function showHide(){ 
+$('#gif').css('visibility', 'visible');
+} 
+</script>
+<img src="/static/splee/pictures/loading.gif" id="gif" style=" margin-left: auto; width: 100px; visibility: hidden;"><br>
+
+<div>
+<input type="submit" onClick="showHide()" "id="submit" value="Submit" style="height:50px; width:100px" />
+      <p>It may take several minutes to load the result page.</p>
+</div>
+    </fieldset>
+  </form> 
+</div>
+</div>
+
+<!-- ending of the the major Form -->
+
+
+</div>
+</body>
+</html>
+

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+{% load static %}
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Enrichment query error</title>
+
+<link rel="shortcut icon" href="{%  static 'splee/pictures/s.ico' %}"> 
+<link rel="stylesheet" type="text/css" href="{% static 'splee/css_files/styleForError.css' %}" />
+
+</head>
+<body style="margin-left:10%;margin-right:10%">
+<div class=content style="background-color:#ffffff">
+  <div id="logo">
+        <a href='/home'>
+	  <img src="{% static 'splee/pictures/sapfir-logo.svg' %}" height="150px" width="325px" alt="SAPFIR"/>
+        </a>
+  </div><br><br>
+
+<!--Error Message-->
+
+<p>Your query has been stopped due to an error. </p>
+<p>Please make sure your input files follow the expected format and the using the correct Ensembl Gene ID with the correct species.</p>
+<p>Please consult the <a href='/help'>help page</a> for a detailed explaination.</p>
+
+
+</div>
+</body>
+</html>

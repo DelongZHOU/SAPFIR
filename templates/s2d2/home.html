@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+
+
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Home</title>
+
+    <meta content="Display home page" />
+
+    {% load static %}
+	<link rel="stylesheet" type="text/css" href="{% static 's2d2/css_files/styleForHome.css' %}" />
+        <link rel="shortcut icon" href="{%  static 'splee/pictures/s.ico' %}">
+</head>
+<style>
+.content {
+  max-width: 80%;
+  margin: auto;
+}
+</style>
+<body style="margin-left:10%;margin-right:10%">
+   <div class=content>
+	<div id="logo">
+        <a href='/home'>
+	  <img src="{% static 'splee/pictures/sapfir-logo.svg' %}" height="150px" width="325px" alt="SAPFIR"/>
+        </a>
+	</div><br>
+        <h1>
+	<p>
+	Sherbrooke Alternative Protein Feature IdentificatoR (SAPFIR) seeks to understand how alternative splicing, transcription initiation and termination change the localization or function of a gene by regulating which localization signals, functional domains and other important protein features are present in the mature mRNA.
+	</p>
+	<p> SAPFIR contains the following functions: </p>
+	    <li><a href='/splee/search-form'>Single Gene Annotation</a></li>
+	    <!-- <li><a>List of Genes Annotation</a></li> -->
+	    <li><a href='/splee/map-form'>Enrichment Analysis</a></li>
+        <p> Please consult the <a href='/help'> help page </a> for more information. </p>
+
+        </h1>
+  </div>
+
+</body>
+
+</html>
+

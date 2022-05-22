@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Help</title>
+
+    <meta content="Display help page" />
+    {% load static %}
+	<link rel="stylesheet" type="text/css" href="{% static 's2d2/css_files/styleForHelp.css' %}" />
+        <link rel="shortcut icon" href="{%  static 'splee/pictures/s.ico' %}">
+  </head>
+<style>
+.content {
+  max-width: 80%;
+  margin: auto;
+}
+</style>
+<body style="margin-left:10%;margin-right:10%;background-color:#ffffff">
+<div class=content style="background-color:#ffffff">
+
+<div id="logo">
+        <a href='/home'>
+	  <img src="{% static 'splee/pictures/sapfir-logo.svg' %}" height="150px" width="325px" alt="SAPFIR"/>
+        </a>
+</div><br>
+
+<div id='toc' >
+<h2 class='toc_title'>Contents</h2>
+  <ul class='toc_list'>
+    <li><a href='#Overview'>Overview</a></li>
+    <li><a href='#SingleGene'>Single Gene Annotation</a></li>
+    <!-- <li><a href='#BatchSubmission'>List of Genes Annotation</a></li> -->
+    <li><a href='#Enrichment'>Enrichment Analysis</a></li>
+    <li><a href='#Contact'>Contact Us</a></li>
+  </ul>
+</div>
+
+<h2 id='Overview'>Overview</h2>
+<p>
+Sherbrooke Alternative Protein Feature IdentificatoR (SAPFIR) seeks to understand how alternative splicing, transcription initiation and termination change the localization or function of a gene by regulating which localization signals, functional features and other important protein features are present in the mature mRNA.
+  
+</p>
+
+<h2 id='SingleGene'>Single Gene Annotation</h2>
+  <p>The <a href='/splee/search-form'>Single Gene Annotation</a> function of the SAPFIR tool visualizes the position of functional features within a gene. </p>
+  <p>The search parameters include: </p>
+    <dl>
+	<dt>  A single gene, either using HGNC (human) or MGI (mouse) gene symbol or its ENSEMBL Gene ID.
+	  <dd> Please note that human and mouse gene symbol do not follow the same standard, e.g., RBFOX2 (human) vs Rbfox2 (mouse), nor always the same, e.g., QKI (human) vs Qk (mouse). The gene symbols also get updated from time to time. ENSEMBL Gene ID is preferred.
+	<dt>  The species, choosing from human or mouse.
+	<dt>  The prediction tool(s) used by InterProScan to predict the features.
+          <dd>Please note that each tool is designed to predict a different set of features of the protein sequence. A detailed description of the tools can be found at <a href='https://www.ebi.ac.uk/interpro/about/consortium/'>InterPro website</a>. Choosing multiple tools may produce redundancy in the result if they are designed to predict similar features.
+	<dt>  The CDS length ratio threshold.
+          <dd> This is used to exclude transcripts with short CDS. The default value of 0.25 is recommanded.
+    </dl>
+  <p> The result page consists of two downloadable tables and a graph. </p>
+  <p> The first table lists the features predicted by IntroProScan. The table contains the following columns: </p>
+     <ul>
+      <li>Prediction tool and prediction signature;</li>
+      <li>IntroPro Accession and description of the predicted feature, if available;</li>
+      <li>ENSEMBL ID of the transcript in which the feature is predicted;</li>
+      <li>Genomic region corresponding to the predicted feature (might include introns);</li>
+     </ul>
+  <p>Major isoforms according to APPRIS database are marked by * (if they are tagged as "PRINCIPAL:1" in the APPRIS database) or by ** (if they are tagged as "PRINCIPAL:2" or higher, or tagged as "ALTERNATIVE") in the table above. Transcripts without * or ** are minor isoforms. Please visit the <a href='https://appris.bioinfo.cnio.es/#/help/scores'>APPRIS web site</a> for more information concerning their scoring system. In summary, when the process to select the major isoform only identifies one peptide candidate, all transcripts coding for this peptide are tagged as "PRINCIPAL:1". Multiple transcripts of one single gene can have this tag if they have identical CDS and only differs in their untranslated regions. However when the process identifies multiple candidates, they are tagged as either "PRINCIPAL:2" to "PRINCIPAL:5" or "ALTERNATIVE:1" or "ALTERNATIVE:2". Untagged isoforms are considered as minor isoforms. </p>
+  <br>
+  <figure>
+  <img id='example' src="/static/splee/pictures/table_1.png" style="width: 80%; margin: auto; background-color: #ffffff" alt="Example of the first table"/>
+  <figcaption>Fig.1 - Example of the first table.</figcaption>
+  </figure>
+  <br>
+  <p> The second table indicates whether the features are predicted present in all transcripts. It contains the following columns: </p>
+     <ul>
+      <li>Prediction tool and prediction signature;</li>
+      <li>IntroPro Accession and description of the predicted feature, if available;</li>
+      <li>Whether the feature is constitutive or alternative according to three standards in the selection of transcripts:</li>
+      <p>To suit the needs of different studies, whether a feature is alternative will be investigated accoding to three independent standards in the selection of transcripts :
+        <dl>
+          <dt>(1) All coding transcripts;
+          <dt>(2) Transcripts whose CDS are longer than a certain ratio of the longest CDS, the ratio can be modified in the next section;
+		<dd>Transcripts with short CDS have few predicted features, thus making features predicted in other transcripts alternative. By default the threshold is set to 0.25. This value will not interfere with the first or third standards.
+          <dt>(3) Transcripts whose CDS overlaps with the feature.
+		<dd>This standard is more useful for alternative splicing where an alternative region flancked by constititive regions.
+       </dl>
+      </p>
+     </ul>
+  <figure>
+  <img id='example' src="/static/splee/pictures/table_2.png" style="width: 80%; margin: auto; background-color: #ffffff" alt="Example of the second table"/>
+  <figcaption>Fig.2 - Example of the second table.</figcaption>
+  </figure>
+
+  <p>The motivation behind this choise is that often a gene has many non-coding transcripts and short transcripts (transcripts 4 and 5 in the following illustration) according to Ensembl annotations, which makes the majority if not all predicted features alternative. Thus, limiting the transcripts to the coding ones or those with relatively longer CDS produces more meaningful results.  
+  </p>
+  <p>Another consideration is the difference between alternative splicing, alternative transcription start sites (ATSS), and alternative transcription termination sites (ATTS). Despite ATSS and ATTS involve different mechanisms and regulation to AS, they all contribute to the diversity in transcripts and proteins produced by a single gene. Indeed, many differential splicing tools report changes in ATSS and ATTS. The third standard of Overlap CDS makes the result more relavent for users particularly interested in splicing.
+  </p>
+  <p>In this case, the selection of transcripts varies for each feature. The overlapping is defined as the extremities of the feature in question are within the extremities of the CDS of a (coding) transcript. Hince, in the following illustration, transcripts 1 and 2 overlap with feature1, while transcripts 1, 2 and 3 overlap with feature 4. Thus, feature1 is constitutive and feature4 alternative.
+  </p>
+  <figure>
+  <img id='example' src="/static/splee/pictures/plot_example.png" style="width: 80%; margin: auto; background-color: #ffffff" alt="Whether a feature is alternative depends on the transcripts in consideration"/>
+  <figcaption>Fig.3 - Whether a feature is alternative depends on the transcripts in consideration.</figcaption>
+  </figure>
+<br>
+  <p>Finally, the graph represents the gene structure and the predicted features:</lip>
+     <ul>
+      <li>A legend illustrating elements in the plot</li>
+      <li>The plot is oriented in increasing genomic coordinates. For genes on the positive strand, the left end corresponds to the 5' and the right end corresponds to the 3'. For genes on the negative strand, the reverse is true.</li>
+      <li>The ENSEMBL gene ID is indicated in the uppler left conner of the graph.</li>
+      <li>Each line represents one transcript, with its ENSEMBL transcript ID on the left, the exons shown as blocks and introns shown as lines.</li>
+      <li>In each transcript, the region corresponding to the CDS is colored in blue. A transcript with only white blocks is non-coding.</li>
+      <li>The predicted features are represented as thin rectangles, with color-coded labels indicating their InterPro accession. Same colored label indicates the same feature within and across the transcripts. Similar colors may apprear when the number of different features is high.</li>
+     </ul>
+  <figure>
+  <img id='example' src="/static/splee/pictures/plot.png" style="width: 60%; margin: auto; background-color: #ffffff" alt="Example of the final plot"/>
+  <figcaption>Fig.4 - Example of the final plot.</figcaption>
+  </figure>
+<h2 id='Enrichment'>Enrichment Analysis</h2>
+  <p> The goal of the <a href='/splee/map-form'>Enrichment Analysis</a> is to help understand how changes in splicing profile affect the protein function in the cell. This function compares the frequency of InterProScan predicted protein features found in two lists of genomic regions, refered to as "target" and "background". A typical input can be a list of alternatively spliced exons or junctions identified by an RNA-seq experiments as the "target", and a list of expressed but not alternatively spliced exons or junctions in the same experiment as the "background"; although generally any regions meaningful for the user can be used </p>
+  <p> The expected input includes : </p>
+    <ul>
+      <li> The two lists of genomic regions expected to be provided in a <a href='https://genome.ucsc.edu/FAQ/FAQformat.html#format1'>.bed file</a>, while the 4th column is the Ensembl ID. The Ensembl ID is required to ensure correct mapping of genomic region to genes in the database. </li>
+        <ul>
+          <p>Only the first 6 columns are considered, including the score column which is ignored. Any additional columns are descarded during data processing. </p>
+          <p>Example data are provided using previously published data in <a href='https://pubmed.ncbi.nlm.nih.gov/34244793/'>human</a> and <a href='https://pubmed.ncbi.nlm.nih.gov/27598998/'>human</a> </p>
+        </ul>
+      <li>  The species, choosing from human or mouse. </li>
+      <li>  The prediction tool(s) used by InterProScan to predict the protein features. </li>
+        <ul>
+           <p>Please note that each tool is designed to predict a different set of features of the protein sequence. A detailed description of the tools can be found at <a href='https://www.ebi.ac.uk/interpro/about/consortium/'>InterPro website</a>. Choosing multiple tools may produce redundancy in the result if they are designed to predict similar features.</p>
+	</ul>
+    </ul>
+  <p> The result page consists of a summary of the enrichment analysis, a table of comparison and enrichment, and functional features annonation for the target and background list. </p>
+<ul>
+   <li> The table of comparison and enrichment. Only the head of the table is shown in the result page for convinience, the full tabe can be downloaded via the link underneath. This table contains the following columns: 
+     <ul>
+       <li> Interpro ID of predicted features (if available), the tool used for prediction and its signature for the feature; </li>
+       <li> Number of target regions containing the feature; </li>
+       <li> Number of background regions containing the feature; </li>
+       <li> The p-value of chi-square test where the null hypothesis is that the target list and the background list have the same frequency of exons or junctions containing the feature; </li>
+       <li> The q-value, which is Benjamini-Hochberg adjusted p-value; </li>
+       <li> The ratio of the frequency in the target list over frequency in the background list. To avoid division by zero errors, target regions are included in the background for this calculation.  </li>
+     </ul>
+   </li>
+   <li> Annotated target and background regions as downloadable bed files. 
+      <ul>
+       <li> The first columns are the same as the input; </li>
+       <li> The following columns contain a comma-separated list of functional features overlapping the entry, tools used for the prediction and prediction signature, or a single dot if such overlap is not found.</li>
+      </ul>
+   </li>
+</ul>
+  <p>This result page will be available for 48 hours after completion. </p>
+   
+<h2 id='Contact'>Contact Us</h2>
+<p> SAPFIR is developped by the research groups of <a href='https://bioinfo-scottgroup.med.usherbrooke.ca/'>Michelle  Scott, Ph.D.</a> and <a href='https://abouelela.recherche.usherbrooke.ca/en/index.php'> Sherif Abou Elela, Ph.D.</a>. </p>
+             <p> SAPFIR is managed by Delong Zhou. Comments, questions or suggestions can be communicated via e-mail: delong(dot)zhou(at)usherbrooke(dot)ca; please include "SAPFIR" in the subject.</p>
+</div>
+</body>

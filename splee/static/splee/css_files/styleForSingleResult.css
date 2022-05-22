@@ -1,0 +1,52 @@
+h1{
+ text-align: center; 
+ color:#000000;
+ background: #ffffff"
+ text-align: center;
+ font-size: 30px;
+ margin: auto;
+}
+
+html {
+    display: table;
+    margin: auto;
+}
+
+
+body {
+    margin-top: 25px;
+    background-size: 100%;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+h2{
+  font-size:22px;
+  font-weight:100;
+  display: block;
+  padding-left: 2px;
+  padding-right: 2px;
+  display: inline-block;
+  margin: auto;
+}
+
+img#legend {
+  padding:2px;
+  border:2px solid #ffffff;
+  background-color:#ffffff;
+  display:block;
+  width:50%;
+  margin:auto;
+}
+
+img#plot {
+  padding:2px;
+  border:2px solid #ffffff;
+  background-color:#000000;
+  display:block;
+  width:100%;
+  margin:auto;
+}
+
+    
+
