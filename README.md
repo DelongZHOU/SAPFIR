@@ -4,6 +4,7 @@
 ## Preface
 
 Sherbrooke Alternative Protein Feature IdentificatoR (SAPFIR) seeks to understand how alternative splicing, transcription initiation and termination change the localization or function of a gene by regulating which localization signals, functional features and other important protein features are present in the mature mRNA. 
+This repository accompanies the paper titled "SAPFIR: A webserver for the identification of alternative protein features" published in BMC Bioinformatics DOI: [10.1186/s12859-022-04804-w](https://doi.org/10.1186/s12859-022-04804-w).
 
 SAPFIR has two main functions.
 
